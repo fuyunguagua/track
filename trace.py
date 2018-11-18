@@ -1,4 +1,3 @@
-
 import time
 from report import report_info
 from ip_get import get_host_ip
