@@ -1,4 +1,4 @@
-flag = '999'
+flag = '999gkghgygkvhl'
 report_center_host = 'http://lookbackagain.com'
 report_center_port = '5000'
 
