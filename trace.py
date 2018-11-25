@@ -1,7 +1,7 @@
 import time
 from report import report_info
 from ip_get import get_host_ip
-from config import flag
+from config import flag, is_duplicate
 try:
     import scapy.all as scapy
 except ImportError:
@@ -13,23 +13,27 @@ except ImportError:
     # If you installed this package via pip, you just need to execute this
     from scapy.layers import http
 # from scapy_ssl_tls.ssl_tls import *
-index = True
+is_first = True
 
 def pkt_callback(p):
     try:
-        global index
+        global is_first, is_duplicate
         if flag in p['Raw'].__repr__():
             watermark = parse_watermark_from_payload(p['Raw'])
             timestamp = '%f10' % time.time()
             ip_src = str(p['IP'].src)
             ip_dst = str(p['IP'].dst)
             cur_ip = get_host_ip()
-            if(index):
-                report_info(watermark=watermark, cur_ip=cur_ip, src_ip=ip_src, dst_ip=ip_dst, timestamp=timestamp)
-                index = False
+            if(is_duplicate):
+                if(is_first):
+                    report_info(watermark=watermark, cur_ip=cur_ip, src_ip=ip_src, dst_ip=ip_dst, timestamp=timestamp)
+                    print time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), watermark, p['IP'].src, '---->', p['IP'].dst
+                    is_first = False
+                else:
+                    is_first = True
             else:
-                index = True
-            print time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), watermark, p['IP'].src, '---->', p['IP'].dst
+                report_info(watermark=watermark, cur_ip=cur_ip, src_ip=ip_src, dst_ip=ip_dst, timestamp=timestamp)
+                print time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), watermark, p['IP'].src, '---->', p['IP'].dst
     except Exception as e:
         print e
 
