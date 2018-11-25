@@ -12,17 +12,21 @@ try:
 except ImportError:
     # If you installed this package via pip, you just need to execute this
     from scapy.layers import http
-from scapy_ssl_tls.ssl_tls import *
+# from scapy_ssl_tls.ssl_tls import *
+index = 1
 
 def pkt_callback(p):
     try:
+        global index
         if flag in p['Raw'].__repr__():
             watermark = parse_watermark_from_payload(p['Raw'])
             timestamp = '%f10' % time.time()
             ip_src = str(p['IP'].src)
             ip_dst = str(p['IP'].dst)
             cur_ip = get_host_ip()
-            report_info(watermark=watermark, cur_ip=cur_ip, src_ip=ip_src, dst_ip=ip_dst, timestamp=timestamp)
+            if(index % 2 != 0):
+                report_info(watermark=watermark, cur_ip=cur_ip, src_ip=ip_src, dst_ip=ip_dst, timestamp=timestamp)
+            index += 1
             print time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), watermark, p['IP'].src, '---->', p['IP'].dst
     except Exception as e:
         print e
